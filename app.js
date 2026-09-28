@@ -1,7 +1,8 @@
 const { useState, useEffect, useRef } = React;
 
-const GOOGLE_CLIENT_ID = 'SUA_CREDENCIAL_://googleusercontent.com';
-const CLOUDFLARE_WORKER_URL = 'https://workers.dev';
+const GOOGLE_CLIENT_ID = '186072505759-o5r5qifpp0ccc4pdfe23dtdnjf2t0met.apps.googleusercontent.com
+';
+const CLOUDFLARE_WORKER_URL = 'https://socialbr.pages.dev/';
 
 function App() {
   const [user, setUser] = useState({ name: 'Visitante', bio: 'Seguro e offline.' });
