@@ -2,7 +2,7 @@ const { useState, useEffect } = React;
 
 // ==================== CONFIG ====================
 const API_URL = 'http://localhost:3000/api';
-const USE_SERVER = false; // Mude para true quando o servidor estiver rodando
+const USE_SERVER = true; // Mude para true quando o servidor estiver rodando
 
 // ==================== ÍCONES ====================
 const Icon = ({ path, size = 24, className = "" }) => (
