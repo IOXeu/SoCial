@@ -33,7 +33,7 @@ export async function onRequest({request,env}){
     if(!me)return J({erro:'Acesso negado'},401);
     if(p==='dados'&&m==='GET'){
       const g=await db.prepare('SELECT nome FROM grupos WHERE id=?').bind(gid).first();
-      const ms=await db.prepare('SELECT id,nome,sobre FROM membros WHERE gid=? ORDER BY t').bind(gid).all();
+      const ms=await db.prepare('SELECT id,nome,sobre,foto FROM membros WHERE gid=? ORDER BY t').bind(gid).all();
       const rs=await db.prepare('SELECT id,para,de,texto,t FROM recados WHERE gid=? ORDER BY t DESC LIMIT 300').bind(gid).all();
       return J({grupo:g.nome,membros:ms.results,recados:rs.results});
     }
@@ -48,7 +48,8 @@ export async function onRequest({request,env}){
     }
     if(p==='perfil'&&m==='PUT'){
       if(!ok(b.nome,300)||typeof b.sobre!=='string'||b.sobre.length>1200)return J({erro:'Dados inválidos'},400);
-      await db.prepare('UPDATE membros SET nome=?,sobre=? WHERE id=?').bind(b.nome,b.sobre,mid).run();
+      const ft=typeof b.foto==='string'&&b.foto.length<=40000?b.foto:null;
+      await db.prepare('UPDATE membros SET nome=?,sobre=?,foto=COALESCE(?,foto) WHERE id=?').bind(b.nome,b.sobre,ft,mid).run();
       return J({ok:true});
     }
     return J({erro:'Não encontrado'},404);
