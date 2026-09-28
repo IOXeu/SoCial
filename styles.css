@@ -1,20 +1,38 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Inter', system-ui, sans-serif; background: #D6E9FF; color: #1A2B4D; min-height: 100vh; overflow-x: hidden; }
+body { 
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #D6E9FF;
+  color: #1A2B4D;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 body.dark { background: #0F172A; color: #E2E8F0; }
 .logo { font-family: 'Space Grotesk', sans-serif; }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: #B8D4FF; border-radius: 10px; }
 
 .btn-primary { background: #1A2B4D; color: white; font-weight: 600; padding: 0.625rem 1.25rem; border-radius: 9999px; border: none; cursor: pointer; transition: all 0.2s; font-size: 13px; }
-.btn-primary:hover { background: #000; }
+.btn-primary:hover { background: #000; transform: translateY(-1px); }
 .btn-secondary { background: white; color: #1A2B4D; font-weight: 500; padding: 0.5rem 1rem; border-radius: 9999px; border: 1px solid #B8D4FF; cursor: pointer; transition: all 0.2s; font-size: 12px; }
 .btn-secondary:hover { background: #D6E9FF; }
 
 .input-field { width: 100%; border: 1px solid #B8D4FF; background: #F8FBFF; border-radius: 12px; padding: 0.875rem; font-size: 13px; outline: none; transition: all 0.2s; font-family: inherit; }
 .input-field:focus { border-color: #2C5DFA; box-shadow: 0 0 0 2px rgba(44, 93, 250, 0.2); }
 
-.card { background: white; border: 1px solid #B8D4FF; border-radius: 14px; box-shadow: 0 2px 0 0 #B8D4FF; overflow: hidden; }
+.card { background: white; border: 1px solid #B8D4FF; border-radius: 14px; box-shadow: 0 2px 0 0 #B8D4FF; overflow: hidden; transition: all 0.3s ease; }
 body.dark .card { background: #1E293B; border-color: #334155; box-shadow: 0 2px 0 0 #334155; }
+
+.card-glow {
+  box-shadow: 
+    0 0 0 1px rgba(255, 46, 147, 0.3),
+    0 0 20px rgba(255, 46, 147, 0.15),
+    0 0 40px rgba(147, 51, 234, 0.1);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255, 46, 147, 0.3), 0 0 20px rgba(255, 46, 147, 0.15); }
+  50% { box-shadow: 0 0 0 2px rgba(255, 46, 147, 0.4), 0 0 30px rgba(255, 46, 147, 0.25), 0 0 50px rgba(147, 51, 234, 0.15); }
+}
 
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 13px; font-weight: 500; z-index: 100; animation: slideUp 0.3s ease-out; box-shadow: 0 4px 12px rgba(0,0,0,0.15); color: white; }
 .toast-success { background: #22C55E; }
@@ -46,7 +64,11 @@ body.dark .footer-link { color: #E2E8F0; }
 .checkbox-wrapper input[type="checkbox"] { width: 14px; height: 14px; accent-color: #2C5DFA; cursor: pointer; }
 
 .ad-badge { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
-.moderation-notice { background: #FEF2F2; border: 1px solid #FECACA; color: #991B1B; padding: 0.5rem; border-radius: 8px; font-size: 11px; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+
+.logo-img { height: 40px; width: auto; object-fit: contain; }
+@media (min-width: 768px) { .logo-img { height: 48px; } }
+.texto-social { color: #2C5DFA; }
+.texto-br { color: #22C55E; }
 
 .parcerias-banner { overflow: hidden; background: #F8FBFF; border-top: 1px solid #B8D4FF; padding: 12px 0; margin-top: 20px; }
 body.dark .parcerias-banner { background: #1E293B; border-color: #334155; }
