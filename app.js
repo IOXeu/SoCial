@@ -1,4 +1,8 @@
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect } = React;
+
+// ==================== CONFIG ====================
+const API_URL = 'http://localhost:3000/api';
+const USE_SERVER = false; // Mude para true quando o servidor estiver rodando
 
 // ==================== ÍCONES ====================
 const Icon = ({ path, size = 24, className = "" }) => (
@@ -8,7 +12,6 @@ const Icons = {
   House: <><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></>,
   Key: <><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></>,
   Lock: <><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
-  Menu: <><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>,
   Message: <><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></>,
   Pen: <><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></>,
   Send: <><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></>,
@@ -19,7 +22,6 @@ const Icons = {
   Zap: <><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></>,
   Heart: <><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></>,
   Scale: <><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></>,
-  AlertCircle: <><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>,
   Database: <><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></>,
   Megaphone: <><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></>,
   Image: <><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>,
@@ -37,295 +39,117 @@ const LegalContent = {
 
 O SoCialBr é uma plataforma de interação social e bate-papo, desenvolvida para permitir que usuários se conectem e conversem pela internet, com foco em privacidade e segurança.
 
-Esta Política de Privacidade explica como os dados pessoais são tratados durante o uso da plataforma.
-
 ## 1. Dados que podemos tratar
-
-Dependendo dos recursos utilizados, o SoCialBr poderá tratar:
-* Dados de cadastro e identificação, como nome de exibição e endereço de e-mail.
-* Informações de autenticação e segurança da conta.
-* Mensagens, arquivos e conteúdos enviados pelos próprios usuários.
-* Informações técnicas necessárias ao funcionamento, como endereço IP, registros de acesso e dados do dispositivo.
-* Preferências e configurações da conta.
-
-Os dados efetivamente tratados dependerão dos recursos disponíveis e ativados na versão utilizada.
+* Dados de cadastro e identificação, como nome de exibição.
+* Mensagens e conteúdos enviados pelos usuários.
+* Informações técnicas necessárias ao funcionamento.
 
 ## 2. Login e serviços do Google
-
-Caso o usuário escolha entrar ou utilizar recursos do Google, o SoCialBr poderá solicitar autorização para acessar as informações estritamente necessárias à funcionalidade escolhida.
-
-Se o usuário conectar o Google Drive para realizar backups:
+Caso o usuário conecte o Google Drive para backups:
 * O aplicativo solicitará autorização explícita.
-* Poderá criar uma pasta própria para os backups do SoCialBr no Drive do usuário.
-* Poderá enviar e atualizar arquivos de backup criados pelo aplicativo.
-* Não utilizará esses dados para publicidade direcionada ou venda de informações pessoais.
-* O usuário poderá revogar a autorização nas configurações da própria conta Google.
-
-O acesso ao Google Drive será utilizado para disponibilizar a funcionalidade de backup solicitada pelo usuário, respeitando as permissões concedidas e as políticas aplicáveis do Google.
+* Poderá criar uma pasta própria para os backups no Drive do usuário.
+* Não utilizará esses dados para publicidade ou venda de informações.
 
 ## 3. Mensagens e privacidade
-
-O SoCialBr tem como objetivo oferecer comunicação privada entre usuários.
-
-A plataforma poderá implementar criptografia para proteger mensagens durante o envio e, conforme a arquitetura adotada, também durante o armazenamento.
-
-A proteção efetiva dependerá dos mecanismos técnicos realmente implementados. Não se deve presumir que todas as mensagens possuem criptografia de ponta a ponta antes de essa funcionalidade estar disponível e documentada.
+O SoCialBr implementa criptografia AES-256 para proteger mensagens.
 
 ## 4. Finalidade do tratamento
-
-Os dados poderão ser utilizados para:
 * Criar e administrar contas.
-* Permitir conversas e interações entre usuários.
-* Manter a segurança e a estabilidade do serviço.
-* Prevenir fraudes, abusos e acessos não autorizados.
-* Realizar backups e restaurações quando solicitados.
-* Cumprir obrigações legais aplicáveis.
+* Permitir conversas e interações.
+* Manter a segurança do serviço.
+* Realizar backups quando solicitados.
 
 ## 5. Compartilhamento de dados
-
 O SoCialBr não comercializa dados pessoais dos usuários.
 
-Os dados poderão ser compartilhados quando necessário para a operação técnica do serviço, com fornecedores envolvidos na hospedagem, infraestrutura ou segurança, observadas as finalidades e proteções aplicáveis.
+## 6. Direitos dos usuários (LGPD)
+* Acesso, Correção, Exclusão e Portabilidade dos dados.
 
-Também poderá haver compartilhamento quando exigido por lei ou por ordem de autoridade competente.
-
-Os dados de backup enviados ao Google Drive ficam sujeitos também às condições e políticas do serviço Google.
-
-## 6. Armazenamento e segurança
-
-Adotamos medidas técnicas e organizacionais compatíveis com a natureza dos dados e os riscos do serviço.
-
-Nenhum sistema conectado à internet pode garantir segurança absoluta. Por isso, recomendamos que os usuários mantenham seus dispositivos protegidos e não compartilhem credenciais ou códigos de acesso.
-
-Os prazos de retenção dos dados dependerão da finalidade, das necessidades operacionais e das obrigações legais aplicáveis.
-
-## 7. Direitos dos usuários
-
-Nos termos da legislação aplicável, especialmente da Lei Geral de Proteção de Dados (LGPD), os usuários poderão solicitar, quando cabível:
-* Confirmação da existência de tratamento.
-* Acesso aos dados pessoais.
-* Correção de dados incompletos, inexatos ou desatualizados.
-* Informações sobre compartilhamento.
-* Eliminação ou anonimização de dados, nos casos permitidos.
-* Revogação de consentimento, quando essa for a base legal utilizada.
-
-## 8. Exclusão de dados e encerramento da conta
-
-O usuário poderá solicitar o encerramento da conta e a exclusão de seus dados, observadas as obrigações legais de retenção e eventuais limitações técnicas devidamente informadas.
-
-A exclusão da conta no SoCialBr não apaga automaticamente os arquivos de backup que o usuário tenha salvo no próprio Google Drive. Esses arquivos poderão ser removidos diretamente pelo usuário.
-
-## 9. Alterações desta política
-
-Esta Política poderá ser atualizada para refletir mudanças nos recursos, na infraestrutura ou nas exigências legais.
-
-Alterações relevantes serão comunicadas por meio da plataforma ou de outro canal apropriado.
-
-## 10. Contato
-
-Para dúvidas, solicitações relacionadas à privacidade ou exercício de direitos, entre em contato:
-
-**Responsável pelo SoCialBr:** HDMicro
-**E-mail de privacidade:** hdmicromicro@gmail.com
+## 7. Contato
+**Responsável:** HDMicro
+**E-mail:** hdmicromicro@gmail.com
 **Site:** https://socialbr.pages.dev/`,
 
   termos: `# Termos de Uso — SoCialBr
 **Última atualização: 27 de setembro de 2026**
 
-Estes Termos de Uso estabelecem as condições para utilização do SoCialBr, uma plataforma de interação social e bate-papo.
-
-Ao criar uma conta ou utilizar a plataforma, o usuário declara que leu e compreendeu estes termos.
-
 ## 1. Finalidade da plataforma
+O SoCialBr é destinado à comunicação e interação entre usuários.
 
-O SoCialBr é destinado à comunicação e à interação entre usuários, por meio de recursos sociais e de bate-papo disponibilizados na plataforma.
-
-Os recursos poderão ser ampliados, modificados ou descontinuados conforme a evolução do serviço.
-
-## 2. Cadastro e responsabilidade da conta
-
-O usuário é responsável pelas informações fornecidas no cadastro e pela proteção de suas credenciais de acesso.
-
-O usuário deverá comunicar ao serviço, por um canal apropriado, qualquer suspeita de acesso não autorizado à sua conta.
-
-O uso da plataforma deverá respeitar a legislação aplicável e estes Termos.
+## 2. Cadastro e responsabilidade
+O usuário é responsável pelas informações fornecidas e pela proteção de suas credenciais.
 
 ## 3. Conduta dos usuários
-
 É proibido utilizar o SoCialBr para:
 * Praticar fraudes, golpes ou atividades ilícitas.
-* Ameaçar, perseguir, assediar ou intimidar outras pessoas.
-* Distribuir malware, links maliciosos ou conteúdos destinados a comprometer dispositivos e contas.
-* Violar direitos autorais, privacidade ou outros direitos de terceiros.
-* Tentar acessar contas, mensagens ou informações sem autorização.
-* Interferir deliberadamente na disponibilidade ou segurança da plataforma.
+* Ameaçar, perseguir, assediar ou intimidar.
+* Violar direitos autorais ou privacidade de terceiros.
 
-O usuário é responsável pelo conteúdo que publica, transmite ou compartilha.
+## 4. Conteúdo Proibido (Tolerância Zero)
+* Pedofilia ou exploração infantil.
+* Nudez, pornografia ou conteúdo sexual explícito.
+* Temas de cunho político ou religioso.
+* Incitação à violência, feminicídio, morte.
+* Jogos de azar, bets, cassinos ou golpes financeiros.
 
-## 4. Mensagens e conteúdos
+## 5. Google Drive e backups
+* A conexão dependerá da autorização do usuário.
+* Os backups serão armazenados em pasta criada no Drive do usuário.
 
-As mensagens e os conteúdos enviados pelos usuários devem respeitar a legislação e os direitos de terceiros.
-
-O usuário mantém a responsabilidade pelos conteúdos que produz e compartilha.
-
-A plataforma poderá adotar mecanismos de denúncia, moderação e segurança, respeitando a legislação aplicável e a arquitetura de privacidade implementada.
-
-A existência de criptografia não elimina a responsabilidade do usuário pelo conteúdo que envia.
-
-## 5. Segurança e criptografia
-
-O SoCialBr tem como objetivo oferecer comunicação com mecanismos robustos de proteção.
-
-Os recursos de criptografia serão disponibilizados conforme sua implementação técnica e documentação.
-
-Nenhuma referência a criptografia militar, criptografia de ponta a ponta ou segurança absoluta deverá ser interpretada como garantia, a menos que o mecanismo correspondente esteja efetivamente implementado e suas limitações estejam informadas.
-
-O usuário reconhece que a segurança também depende da proteção de seus dispositivos, senhas e sessões.
-
-## 6. Google Drive e backups
-
-Caso o usuário opte por utilizar o Google Drive:
-* A conexão dependerá da autorização concedida pelo usuário à sua conta Google.
-* Os backups poderão ser armazenados em uma pasta criada pelo aplicativo no Drive do próprio usuário.
-* O usuário é responsável por manter sua conta Google acessível e com espaço disponível.
-* O funcionamento do backup depende também da disponibilidade dos serviços do Google.
-
-O usuário poderá revogar o acesso do aplicativo a qualquer momento nas configurações da conta Google.
-
-A revogação poderá impedir novos backups e restaurações que dependam dessa conexão.
-
-## 7. Disponibilidade e alterações
-
-O SoCialBr poderá passar por atualizações, manutenções e alterações técnicas.
-
-Embora sejam adotadas medidas para manter a disponibilidade, não é possível garantir funcionamento ininterrupto ou ausência total de falhas.
-
-Recursos experimentais poderão ser alterados ou removidos durante o desenvolvimento.
-
-## 8. Suspensão e encerramento
-
-O acesso poderá ser suspenso ou encerrado em situações de uso abusivo, violação destes Termos, risco à segurança ou obrigação legal, observados os direitos do usuário e as regras aplicáveis.
-
-Quando apropriado e viável, o usuário poderá receber informação sobre o motivo da medida e os meios disponíveis para solicitar revisão.
-
-## 9. Propriedade intelectual
-
-A identidade visual, o código, os elementos de interface e os demais materiais próprios do SoCialBr são protegidos pela legislação aplicável.
-
-O usuário não recebe, por utilizar a plataforma, autorização para copiar, comercializar ou explorar esses elementos além dos usos permitidos por lei.
-
-Os conteúdos produzidos pelos usuários permanecem sujeitos aos direitos que lhes sejam aplicáveis.
-
-## 10. Privacidade e proteção de dados
-
-O tratamento de dados pessoais é explicado na Política de Privacidade do SoCialBr, que integra estes Termos.
-
-O uso da plataforma também poderá envolver serviços de terceiros, como autenticação ou armazenamento, sujeitos às respectivas condições e políticas.
-
-## 11. Alterações dos Termos
-
-Estes Termos poderão ser atualizados para refletir mudanças no serviço ou na legislação.
-
-Quando houver mudanças relevantes, o SoCialBr buscará informar os usuários por meio de aviso na plataforma ou outro canal apropriado.
-
-## 12. Legislação aplicável
-
-Estes Termos serão interpretados conforme as leis brasileiras, respeitadas as normas obrigatórias de proteção do consumidor e de proteção de dados, quando aplicáveis.
-
-## 13. Contato
-
-**Responsável pelo SoCialBr:** HDMicro
-**E-mail de contato:** hdmicro@gmail.com
+## 6. Contato
+**Responsável:** HDMicro
+**E-mail:** hdmicro@gmail.com
 **Site:** https://socialbr.pages.dev/`,
 
   responsabilidade: `# Responsabilidade de Uso — SoCialBr
 **Última atualização: 27 de setembro de 2026**
 
-O SoCialBr é uma ferramenta de comunicação privada. Com grande privacidade vem grande responsabilidade.
-
 ## 1. Uso Ético
-
 * Use para comunicação legítima entre pessoas reais.
 * Não use para harassment, bullying ou difamação.
-* Respeite os direitos de todos os usuários.
-* Não publique conteúdo que viole as leis brasileiras.
 
 ## 2. Conteúdo Proibido (Tolerância Zero)
-
-É estritamente proibido publicar ou compartilhar:
-* Conteúdo de pedofilia ou exploração infantil.
+* Pedofilia ou exploração infantil.
 * Nudez, pornografia ou conteúdo sexual explícito.
 * Palavras ou temas de cunho político ou religioso.
 * Incitação à violência, feminicídio, morte ou homicídio.
 * Jogos de azar, bets, cassinos ou golpes financeiros.
-* Discurso de ódio, racismo ou discriminação.
 
 ## 3. Segurança da Chave
-
 * Sua chave AES-256 é sua responsabilidade.
-* Não compartilhe sua chave com ninguém.
-* Faça backup em local seguro.
 * Se perder a chave, as mensagens criptografadas serão irrecuperáveis.
 
 ## 4. Backup e Dados
-
 * Recomendamos exportar backup regularmente.
-* Use a opção Google Drive para backup na nuvem (opcional).
-* Mantenha cópias em múltiplos locais seguros.
 * Limpar dados do navegador = perder tudo.
 
-## 5. Limitações Técnicas
-
-* Dados são armazenados apenas no navegador local.
-* Não há recuperação de conta (não existe conta).
-* Cada dispositivo é independente.
-* O funcionamento depende do navegador e dispositivo do usuário.
-
-## 6. Conteúdo do Usuário
-
-* Você é responsável pelo que publica.
-* Conteúdo ilegal é de sua inteira responsabilidade.
-* Não somos responsáveis por conteúdo de terceiros.
-* A moderação automática pode bloquear conteúdo inadequado.
-
-## 7. Privacidade de Terceiros
-
-* Não publique dados pessoais de outros sem consentimento.
-* Respeite a privacidade alheia como deseja a sua.
-* Não compartilhe conversas privadas sem autorização.
-
-## 8. Denúncias
-
-Para reportar abuso ou conteúdo inadequado:
+## 5. Denúncias
 **E-mail:** hdmicro@gmail.com
 **Site:** https://socialbr.pages.dev/
 
 Lembre-se: privacidade é um direito, mas também uma responsabilidade.`
 };
 
-// ==================== MODERAÇÃO BLINDADA ====================
+// ==================== MODERAÇÃO ====================
 const ModerationService = {
   bannedConcepts: [
-    'morte', 'morto', 'matou', 'assassinato', 'feminicídio', 'feminicidio', 
+    'morte', 'morto', 'matou', 'assassinato', 'feminicídio', 'feminicidio',
     'violência', 'violencia', 'arma', 'tiroteio', 'ódio', 'odio', 'racismo',
     'nudez', 'nu', 'nua', 'sexo', 'pornografia', 'pedofilia', 'pedófilo', 'pedofilo',
-    'política', 'politica', 'partido', 'eleição', 'presidente', 'governo', 
+    'política', 'politica', 'partido', 'eleição', 'presidente', 'governo',
     'religião', 'religiao', 'igreja', 'deus', 'bíblia', 'biblia', 'culto',
-    'tigrinho', 'jogo do tigre', 'fortune tiger', 'bet', 'bets', 'aposta', 'apostas', 
-    'cassino', 'casino', 'roleta', 'blaze', 'ganhar dinheiro fácil', 'renda extra fácil', 
+    'tigrinho', 'jogo do tigre', 'fortune tiger', 'bet', 'bets', 'aposta', 'apostas',
+    'cassino', 'casino', 'roleta', 'blaze', 'ganhar dinheiro fácil', 'renda extra fácil',
     'pix grátis', 'golpe do pix', 'urubu do pix', 'aviator', 'mines'
   ],
   check(text) {
     const lowerText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const normalizedBanned = this.bannedConcepts.map(word => 
+    const normalizedBanned = this.bannedConcepts.map(word =>
       word.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     );
     for (let word of normalizedBanned) {
       if (lowerText.includes(word)) {
-        return { 
-          safe: false, 
-          reason: "⛔ Conteúdo bloqueado: Viola as regras da comunidade (tema proibido: violência, conteúdo impróprio, política, religião ou jogos de azar)." 
-        };
+        return { safe: false, reason: "⛔ Conteúdo bloqueado: Viola as regras da comunidade." };
       }
     }
     return { safe: true };
@@ -340,12 +164,46 @@ const StorageService = {
   importAll(jsonString) { try { const data = JSON.parse(jsonString); Object.keys(data).forEach(key => localStorage.setItem(key, data[key])); return true; } catch (e) { return false; } }
 };
 
+// ==================== API SERVICE ====================
+const ApiService = {
+  async request(method, endpoint, data = null) {
+    if (!USE_SERVER) return null;
+    try {
+      const options = { method, headers: { 'Content-Type': 'application/json' } };
+      if (data) options.body = JSON.stringify(data);
+      const response = await fetch(`${API_URL}${endpoint}`, options);
+      return await response.json();
+    } catch (e) {
+      console.error('API Error:', e);
+      return null;
+    }
+  },
+  createUser: (data) => ApiService.request('POST', '/users', data),
+  getUsers: (search) => ApiService.request('GET', `/users${search ? `?search=${search}` : ''}`),
+  createMessage: (data) => ApiService.request('POST', '/messages', data),
+  getMessages: (userId, limit = 50) => ApiService.request('GET', `/messages${userId ? `?user_id=${userId}&limit=${limit}` : `?limit=${limit}`}`),
+  createGroup: (data) => ApiService.request('POST', '/groups', data),
+  getGroups: () => ApiService.request('GET', '/groups'),
+  createAd: (data) => ApiService.request('POST', '/ads', data),
+  getAds: () => ApiService.request('GET', '/ads'),
+};
+
 // ==================== COMPONENTES UI ====================
-const Avatar = ({ name, size = "md", online = false }) => {
+const Avatar = ({ name, photo, size = "md", online = false }) => {
   const initials = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
   const colors = ['bg-[#FFD6E8] text-[#A81E5D]', 'bg-[#D6E9FF] text-[#1A4DA6]', 'bg-[#DCFCE7] text-[#14532D]', 'bg-[#FEF9C3] text-[#854D0E]'];
   const hash = name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % colors.length;
   const sizes = { sm: 'w-8 h-8 text-[11px]', md: 'w-9 h-9 text-[12px]', xl: 'w-[76px] h-[76px] text-[20px]' };
+
+  if (photo) {
+    return (
+      <div className={`relative shrink-0 rounded-full border-2 border-[#B8D4FF] overflow-hidden ${sizes[size]}`}>
+        <img src={photo} alt={name} className="w-full h-full object-cover" />
+        {online && <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#22C55E] rounded-full border-2 border-white"></span>}
+      </div>
+    );
+  }
+
   return (
     <div className={`relative shrink-0 rounded-full border border-[#B8D4FF] grid place-items-center font-bold ${colors[hash]} ${sizes[size]}`}>
       {initials}
@@ -360,12 +218,12 @@ function TutorialGoogleDrive({ onClose, onComplete }) {
   const [folderName, setFolderName] = useState('SoCialBr_save');
 
   const steps = [
-    { title: "📚 Vamos salvar seus dados!", text: "Seus recados e fotos são importantes. Vamos guardá-los no Google Drive, que é como um 'baú' na nuvem.", emoji: "🎒", balloon: "Não se preocupe, é fácil!" },
-    { title: " Passo 1: Abra o Google Drive", text: "No seu celular, procure o ícone do Google Drive. É um triângulo colorido (verde, amarelo e azul).", emoji: "📲", balloon: "Se não tiver, baixe na Play Store ou App Store" },
+    { title: " Vamos salvar seus dados!", text: "Seus recados e fotos são importantes. Vamos guardá-los no Google Drive, que é como um 'baú' na nuvem.", emoji: "🎒", balloon: "Não se preocupe, é fácil!" },
+    { title: "📱 Passo 1: Abra o Google Drive", text: "No seu celular, procure o ícone do Google Drive. É um triângulo colorido (verde, amarelo e azul).", emoji: "📲", balloon: "Se não tiver, baixe na Play Store ou App Store" },
     { title: "👤 Passo 2: Entre na sua conta", text: "Toque em 'Fazer login' e use o mesmo e-mail que você usa no Gmail. Provavelmente já está conectado!", emoji: "👤", balloon: "Se aparecer 'Continuar como [seu nome]', é só clicar!" },
     { title: "➕ Passo 3: Crie uma pasta", text: "Toque no botão '+' (mais) no canto inferior direito. Depois escolha 'Pasta'.", emoji: "➕", balloon: "O botão '+' está bem fácil de ver!" },
     { title: "✏️ Passo 4: Dê um nome", text: "Digite o nome da pasta. Sugerimos 'SoCialBr_save' para você achar fácil depois.", emoji: "✏️", balloon: "Pode mudar o nome se quiser!" },
-    { title: "✅ Passo 5: Pronto!", text: "Agora é só tocar em 'Criar'. Sua pasta está pronta para receber o backup!", emoji: "🎉", balloon: "Você conseguiu! 👏" }
+    { title: "✅ Passo 5: Pronto!", text: "Agora é só tocar em 'Criar'. Sua pasta está pronta para receber o backup!", emoji: "", balloon: "Você conseguiu! 👏" }
   ];
 
   const currentStep = steps[step];
@@ -447,6 +305,7 @@ function LegalModal({ type, onClose }) {
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(() => StorageService.load('user') || { name: '', bio: 'Vivendo offline por opção. Sem algoritmo, só amigos.' });
+  const [userPhoto, setUserPhoto] = useState(() => StorageService.load('userPhoto') || null);
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!StorageService.load('user'));
   const [loginName, setLoginName] = useState('');
   const [messages, setMessages] = useState(() => StorageService.load('messages') || [
@@ -459,6 +318,7 @@ function App() {
   const [newMessage, setNewMessage] = useState('');
   const [encryptEnabled, setEncryptEnabled] = useState(true);
   const [activeTab, setActiveTab] = useState('inicio');
+  const [activeCard, setActiveCard] = useState(null);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
@@ -492,6 +352,7 @@ function App() {
   }, []);
 
   useEffect(() => { if (user.name) StorageService.save('user', user); }, [user]);
+  useEffect(() => { if (userPhoto) StorageService.save('userPhoto', userPhoto); }, [userPhoto]);
   useEffect(() => { StorageService.save('messages', messages); }, [messages]);
   useEffect(() => { StorageService.save('ads', ads); }, [ads]);
   useEffect(() => { StorageService.save('groups', groups); }, [groups]);
@@ -500,14 +361,40 @@ function App() {
 
   const showToast = (message, type = "success") => setToast({ message, type });
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!loginName.trim()) return;
+    
+    if (USE_SERVER) {
+      const result = await ApiService.createUser({ name: loginName.trim() });
+      if (result) {
+        setUser(result);
+        setIsLoggedIn(true);
+        showToast(`Bem-vindo ao SoCialBr, ${result.name}!`);
+        return;
+      }
+    }
+    
     setUser(prev => ({ ...prev, name: loginName.trim() }));
     setIsLoggedIn(true);
     showToast(`Bem-vindo ao SoCialBr, ${loginName.trim()}!`);
   };
 
-  const handleSendMessage = () => {
+  const handlePhotoUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast("Foto muito grande! Máximo 5MB.", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setUserPhoto(e.target.result);
+      showToast("Foto atualizada!");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
     const moderationCheck = ModerationService.check(newMessage);
     if (!moderationCheck.safe) {
@@ -515,8 +402,20 @@ function App() {
       setNewMessage('');
       return;
     }
+    
     const msg = { id: Date.now(), from: user.name, text: newMessage.trim(), encrypted: encryptEnabled, time: "agora", likes: 0 };
-    setMessages(prev => [msg, ...prev]);
+    
+    if (USE_SERVER && user.id) {
+      const result = await ApiService.createMessage({ user_id: user.id, text: newMessage.trim(), encrypted: encryptEnabled });
+      if (result) {
+        setMessages(prev => [result, ...prev]);
+      } else {
+        setMessages(prev => [msg, ...prev]);
+      }
+    } else {
+      setMessages(prev => [msg, ...prev]);
+    }
+    
     setNewMessage('');
     showToast('Recado enviado com sucesso!');
   };
@@ -531,7 +430,7 @@ function App() {
     }
   };
 
-  const handleCreateAd = () => {
+  const handleCreateAd = async () => {
     if (!adForm.title.trim() || !adForm.description.trim()) {
       showToast("Preencha título e descrição do anúncio.", "error");
       return;
@@ -542,7 +441,7 @@ function App() {
       showToast("O conteúdo do anúncio viola as regras da comunidade.", "error");
       return;
     }
-    showToast("Pagamento via PIX simulado com sucesso! Anúncio ativado por 30 dias.", "success");
+    
     const newAd = {
       id: Date.now(),
       title: adForm.title.trim(),
@@ -551,12 +450,24 @@ function App() {
       link: adForm.link.trim() || "#",
       expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000)
     };
-    setAds(prev => [newAd, ...prev]);
+    
+    if (USE_SERVER) {
+      const result = await ApiService.createAd(newAd);
+      if (result) {
+        setAds(prev => [result, ...prev]);
+      } else {
+        setAds(prev => [newAd, ...prev]);
+      }
+    } else {
+      setAds(prev => [newAd, ...prev]);
+    }
+    
     setAdForm({ title: '', description: '', mediaUrl: '', link: '' });
     setShowAdModal(false);
+    showToast("Anúncio ativado por 30 dias!");
   };
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = async () => {
     if (!groupForm.name.trim()) {
       showToast("Nome do grupo é obrigatório.", "error");
       return;
@@ -566,6 +477,7 @@ function App() {
       showToast("Conteúdo do grupo viola as regras.", "error");
       return;
     }
+    
     const newGroup = {
       id: Date.now(),
       name: groupForm.name.trim(),
@@ -575,10 +487,21 @@ function App() {
       members: [user.name],
       createdAt: Date.now()
     };
-    setGroups(prev => [newGroup, ...prev]);
+    
+    if (USE_SERVER && user.id) {
+      const result = await ApiService.createGroup({ ...newGroup, created_by: user.id });
+      if (result) {
+        setGroups(prev => [result, ...prev]);
+      } else {
+        setGroups(prev => [newGroup, ...prev]);
+      }
+    } else {
+      setGroups(prev => [newGroup, ...prev]);
+    }
+    
     setGroupForm({ name: '', description: '', isEncrypted: true });
     setShowGroupModal(false);
-    showToast(`Grupo "${newGroup.name}" criado! Você é o criador e pode convidar membros.`);
+    showToast(`Grupo "${newGroup.name}" criado!`);
   };
 
   const handleExportData = () => {
@@ -633,7 +556,7 @@ function App() {
       const feedItems = [];
       let msgIndex = 0;
       let adIndex = 0;
-      
+
       while (msgIndex < messages.length || adIndex < ads.length) {
         if (adIndex < ads.length && (msgIndex === 0 || msgIndex % 3 === 0)) {
           const ad = ads[adIndex];
@@ -652,7 +575,7 @@ function App() {
         <section className="md:col-span-6 flex flex-col gap-4 min-w-0">
           <div className="card p-4">
             <div className="flex items-center gap-2.5 mb-3">
-              <Avatar name={user.name} size="sm" />
+              <Avatar name={user.name} photo={userPhoto} size="sm" />
               <div className="text-[13px] font-semibold">Deixar um recado</div>
               <div className="ml-auto">
                 <label className="checkbox-wrapper bg-[#EFF6FF] border border-[#B8D4FF] px-2.5 py-1 rounded-full">
@@ -668,10 +591,6 @@ function App() {
                 <span className="text-break">Ambiente 100% seguro e moderado.</span>
               </div>
               <button onClick={handleSendMessage} className="btn-primary inline-flex items-center gap-1.5"><Icon path={Icons.Send} size={14} /> Enviar</button>
-            </div>
-            <div className="moderation-notice">
-              <Icon path={Icons.AlertCircle} size={14} />
-              <span>Proibido: violência, política, religião, nudez, jogos de azar (bets/tigrinho) e golpes.</span>
             </div>
           </div>
 
@@ -732,8 +651,12 @@ function App() {
       <header className="sticky z-40 bg-white border-b border-[#B8D4FF] shadow-[0_2px_0_0_#B8D4FF] w-full">
         <div className="max-w-[1280px] mx-auto h-[56px] md:h-[64px] px-3 md:px-6 flex items-center justify-between gap-2 md:gap-4">
           <div className="flex items-center gap-2 md:gap-3 min-w-0">
-            <div className="logo text-[26px] md:text-[30px] font-bold tracking-tight leading-none flex items-baseline shrink-0">
-              <span className="text-[#FF2E93]">S</span><span className="text-[#1A2B4D]">o</span><span className="text-[#2C5DFA]">C</span><span className="text-[#1A2B4D]">ialBr</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <img src="logo-socialbr.png" alt="SoCialBr" className="logo-img" />
+              <div className="logo text-[26px] md:text-[30px] font-bold tracking-tight leading-none flex items-baseline">
+                <span className="texto-social">SoCial</span>
+                <span className="texto-br">Br</span>
+              </div>
               <span className="ml-2 hidden lg:inline text-[10px] font-semibold tracking-[0.2em] text-[#2C5DFA] bg-[#D6E9FF] px-2 py-0.5 rounded-full border border-[#B8D4FF]">SEGURO • E2E</span>
             </div>
           </div>
@@ -746,7 +669,7 @@ function App() {
             <button onClick={() => setDarkMode(!darkMode)} className="w-9 h-9 grid place-items-center rounded-full border border-[#B8D4FF] hover:bg-[#D6E9FF] transition">
               <Icon path={darkMode ? Icons.Sun : Icons.Moon} size={16} />
             </button>
-            {isLoggedIn && <Avatar name={user.name} size="md" online={true} />}
+            {isLoggedIn && <Avatar name={user.name} photo={userPhoto} size="md" online={true} />}
           </div>
         </div>
       </header>
@@ -755,7 +678,7 @@ function App() {
       <div className="bg-white border-b border-[#B8D4FF] w-full overflow-hidden">
         <div className="max-w-[1280px] mx-auto px-3 md:px-6 min-h-[40px] py-2 flex flex-wrap items-center gap-2 text-[11px] md:text-[12px]">
           <span className="inline-flex items-center gap-1.5 bg-[#E6F4EA] text-[#1B6B2F] border border-[#A8DAB5] px-2.5 py-1 rounded-full font-medium">✓ 100% sem rastreamento</span>
-          <span className="inline-flex items-center gap-1.5 bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA] px-2.5 py-1 rounded-full font-medium">️ Moderação Ativa (Zero Bets/Política)</span>
+          <span className="inline-flex items-center gap-1.5 bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA] px-2.5 py-1 rounded-full font-medium">🛡️ Moderação Ativa</span>
           <button onClick={() => setShowAdModal(true)} className="inline-flex items-center gap-1.5 bg-[#1A2B4D] text-white px-2.5 py-1 rounded-full font-medium hover:bg-black transition ml-auto">
             <Icon path={Icons.Megaphone} size={12} /> Anuncie Aqui
           </button>
@@ -766,9 +689,16 @@ function App() {
       <main className="max-w-[1280px] mx-auto px-3 md:px-4 py-4 md:py-6 pb-[80px] md:pb-6 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5">
         {/* Sidebar Esquerda */}
         <aside className="md:col-span-3 flex flex-col gap-4 min-w-0">
-          <div className="card overflow-hidden">
+          {/* Card Perfil */}
+          <div className={`card overflow-hidden ${activeCard === 'perfil' ? 'card-glow' : ''}`} onClick={() => setActiveCard('perfil')}>
             <div className="gradient-header">
-              <div className="avatar-xl"><Avatar name={user.name} size="xl" /></div>
+              <div className="avatar-xl">
+                {userPhoto ? (
+                  <img src={userPhoto} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  <Avatar name={user.name} size="xl" />
+                )}
+              </div>
               <div className="status-badge"><span className="status-dot"></span> ONLINE</div>
             </div>
             <div className="pt-12 pb-4 px-4">
@@ -788,13 +718,15 @@ function App() {
             </div>
           </div>
 
-          <div className="card p-4">
+          {/* Card Chave AES-256 */}
+          <div className={`card p-4 ${activeCard === 'chave' ? 'card-glow' : ''}`} onClick={() => setActiveCard('chave')}>
             <h3 className="font-bold text-[13px] flex items-center gap-1.5 mb-2"><Icon path={Icons.Key} size={14} /> Sua Chave AES-256</h3>
             <div className="text-[10px] font-mono bg-[#F8FBFF] border border-[#D6E9FF] rounded-lg p-2 break-all text-[#1A2B4D]/70">{keyDisplay}</div>
             <p className="text-[10px] text-[#1A2B4D]/50 mt-2">Guarde esta chave. Sem ela, suas mensagens criptografadas são perdidas para sempre.</p>
           </div>
 
-          <div className="card p-4">
+          {/* Card Backup */}
+          <div className={`card p-4 ${activeCard === 'backup' ? 'card-glow' : ''}`} onClick={() => setActiveCard('backup')}>
             <h3 className="font-bold text-[13px] flex items-center gap-1.5 mb-3"><Icon path={Icons.Database} size={14} /> Backup de Dados</h3>
             <div className="flex flex-col gap-2">
               <button onClick={handleExportData} className="btn-secondary inline-flex items-center gap-2 justify-center">
@@ -822,7 +754,7 @@ function App() {
               <li className="flex gap-2"><span className="text-red-500 font-bold">✕</span> Nudez e conteúdo sexual</li>
               <li className="flex gap-2"><span className="text-red-500 font-bold">✕</span> Violência, morte ou feminicídio</li>
               <li className="flex gap-2"><span className="text-red-500 font-bold">✕</span> Política e religião</li>
-              <li className="flex gap-2"><span className="text-red-500 font-bold"></span> Jogos de azar, bets e golpes</li>
+              <li className="flex gap-2"><span className="text-red-500 font-bold">✕</span> Jogos de azar, bets e golpes</li>
               <li className="flex gap-2"><span className="text-green-500 font-bold">✓</span> Respeito e privacidade</li>
             </ul>
           </div>
@@ -836,7 +768,7 @@ function App() {
               ) : groups.map(g => (
                 <div key={g.id} className="p-2 bg-[#F8FBFF] rounded-lg border border-[#D6E9FF]">
                   <div className="text-[12px] font-semibold">{g.name}</div>
-                  <div className="text-[10px] text-[#1A2B4D]/50">{g.members.length} membro(s) {g.isEncrypted && '🔒'}</div>
+                  <div className="text-[10px] text-[#1A2B4D]/50">{g.members.length} membro(s) {g.isEncrypted && ''}</div>
                 </div>
               ))}
             </div>
@@ -864,9 +796,9 @@ function App() {
           <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">🔒 Parceiro 3 - Privacidade</a>
           <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">💡 Parceiro 4 - Inovação</a>
           <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">🎨 Parceiro 5 - Criativo</a>
-          <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer"> Parceiro 1 - Marca Ética</a>
-          <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer"> Parceiro 2 - Sustentável</a>
-          <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer"> Parceiro 3 - Privacidade</a>
+          <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">🤝 Parceiro 1 - Marca Ética</a>
+          <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">🌱 Parceiro 2 - Sustentável</a>
+          <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">🔒 Parceiro 3 - Privacidade</a>
           <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">💡 Parceiro 4 - Inovação</a>
           <a href="https://mpago.la/1S9wisH" className="parceria-item" target="_blank" rel="noopener noreferrer">🎨 Parceiro 5 - Criativo</a>
         </div>
@@ -885,12 +817,12 @@ function App() {
       {!isLoggedIn && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <div className="logo text-[32px] font-bold"><span className="text-[#FF2E93]">S</span>o<span className="text-[#2C5DFA]">C</span>ialBr</div>
+            <div className="logo text-[32px] font-bold"><span className="text-[#FF2E93]">S</span>o<span className="text-[#2C5DFA]">C</span>ial<span className="text-[#22C55E]">Br</span></div>
             <div className="text-[12px] text-[#1A2B4D]/60 mt-1">Entre sem e-mail, sem senha, sem rastreamento.</div>
             <div className="mt-4 flex flex-col gap-3">
               <input value={loginName} onChange={(e) => setLoginName(e.target.value)} placeholder="Seu nome" className="input-field h-11 rounded-full px-4" onKeyPress={(e) => e.key === 'Enter' && handleLogin()} />
               <button onClick={handleLogin} className="btn-primary h-11 rounded-full w-full">Entrar no SoCialBr →</button>
-              <div className="text-[10px] text-center text-[#1A2B4D]/40">🔒 AES-256 • Sem cookies • Código aberto</div>
+              <div className="text-[10px] text-center text-[#1A2B4D]/40"> AES-256 • Sem cookies • Código aberto</div>
             </div>
           </div>
         </div>
@@ -902,6 +834,25 @@ function App() {
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between"><h3 className="font-bold text-[16px]">Editar perfil</h3><button onClick={() => setShowEditProfile(false)} className="w-8 h-8 grid place-items-center rounded-full border border-[#B8D4FF]"><Icon path={Icons.X} size={16} /></button></div>
             <div className="mt-4 flex flex-col gap-3">
+              <label className="text-[11px] font-semibold uppercase tracking-wide">Foto de Perfil</label>
+              <div className="flex items-center gap-3 mb-2">
+                {userPhoto ? (
+                  <img src={userPhoto} alt="Foto" className="w-16 h-16 rounded-full object-cover border-2 border-[#B8D4FF]" />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-[#D6E9FF] border-2 border-[#B8D4FF] grid place-items-center">
+                    <Icon path={Icons.User} size={24} className="text-[#1A2B4D]/40" />
+                  </div>
+                )}
+                <label className="btn-secondary cursor-pointer inline-flex items-center gap-2">
+                  <Icon path={Icons.Upload} size={14} /> Enviar Foto
+                  <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                </label>
+                {userPhoto && (
+                  <button onClick={() => setUserPhoto(null)} className="text-[11px] text-red-500 hover:underline">
+                    Remover
+                  </button>
+                )}
+              </div>
               <label className="text-[11px] font-semibold uppercase tracking-wide">Nome</label>
               <input value={editName} onChange={(e) => setEditName(e.target.value)} className="input-field h-11 rounded-full px-4" />
               <label className="text-[11px] font-semibold uppercase tracking-wide">Bio</label>
@@ -920,7 +871,7 @@ function App() {
               <h3 className="font-bold text-[16px] flex items-center gap-2"><Icon path={Icons.Megaphone} size={18} className="text-[#2C5DFA]" /> Anuncie no SoCialBr</h3>
               <button onClick={() => setShowAdModal(false)} className="w-8 h-8 grid place-items-center rounded-full border border-[#B8D4FF]"><Icon path={Icons.X} size={16} /></button>
             </div>
-            
+
             <div className="bg-[#EFF6FF] border border-[#B8D4FF] rounded-xl p-3 mb-4">
               <div className="text-[12px] font-bold text-[#1A2B4D] mb-1">📦 Pacote Único de Destaque</div>
               <div className="text-[24px] font-bold text-[#2C5DFA]">R$ 190,00</div>
@@ -932,7 +883,7 @@ function App() {
               <textarea value={adForm.description} onChange={(e) => setAdForm({...adForm, description: e.target.value})} placeholder="Descrição clara e objetiva" className="input-field min-h-[80px] rounded-[12px] p-3 resize-none" />
               <input value={adForm.mediaUrl} onChange={(e) => setAdForm({...adForm, mediaUrl: e.target.value})} placeholder="URL da Mídia (Foto/Vídeo) - Opcional" className="input-field h-11 rounded-full px-4 text-[12px]" />
               <input value={adForm.link} onChange={(e) => setAdForm({...adForm, link: e.target.value})} placeholder="Link de destino (https://...)" className="input-field h-11 rounded-full px-4 text-[12px]" />
-              
+
               <button onClick={handleCreateAd} className="btn-primary h-11 rounded-full w-full flex items-center justify-center gap-2">
                 <Icon path={Icons.Zap} size={16} /> Gerar PIX e Ativar (R$ 190,00)
               </button>
@@ -950,7 +901,7 @@ function App() {
               <h3 className="font-bold text-[16px] flex items-center gap-2"><Icon path={Icons.Users} size={18} className="text-[#2C5DFA]" /> Criar Grupo</h3>
               <button onClick={() => setShowGroupModal(false)} className="w-8 h-8 grid place-items-center rounded-full border border-[#B8D4FF]"><Icon path={Icons.X} size={16} /></button>
             </div>
-            
+
             <div className="bg-[#EFF6FF] border border-[#B8D4FF] rounded-xl p-3 mb-4">
               <div className="text-[12px] font-bold text-[#1A2B4D] mb-1">🔒 Grupos Privados</div>
               <div className="text-[11px] text-[#1A2B4D]/60">• Você é o criador e pode convidar membros<br/>• Chave única de criptografia passa pelo criador<br/>• Grupos podem ser criptografados E2E<br/>• Moderação automática ativa</div>
@@ -963,7 +914,7 @@ function App() {
                 <input type="checkbox" checked={groupForm.isEncrypted} onChange={(e) => setGroupForm({...groupForm, isEncrypted: e.target.checked})} />
                 <span className="text-[12px] font-medium"><Icon path={Icons.Lock} size={14} /> Criptografar grupo (E2E)</span>
               </label>
-              
+
               <button onClick={handleCreateGroup} className="btn-primary h-11 rounded-full w-full flex items-center justify-center gap-2">
                 <Icon path={Icons.Users} size={16} /> Criar Grupo
               </button>
@@ -1005,7 +956,7 @@ function App() {
               <div className="text-[11px] text-[#1A2B4D]/60 leading-[1.6]">
                 <p>✓ Zero rastreamento</p>
                 <p>✓ Criptografia AES-256</p>
-                <p>✓ Moderação automática (Anti-Bets/Política)</p>
+                <p>✓ Moderação automática</p>
                 <p>✓ Conformidade LGPD</p>
               </div>
             </div>
