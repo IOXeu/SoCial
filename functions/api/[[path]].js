@@ -1,4 +1,3 @@
-// SoCialBR API v1 (savepoint v2). Binding D1 obrigatorio: DB
 const MAX_MEMBROS_GRUPO = 100; // TESTE, provisorio
 const DESPEDIDA_DIAS = 30, CONVITE_DIAS = 7, DIA = 864e5;
 const J = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'content-type': 'application/json' } });
