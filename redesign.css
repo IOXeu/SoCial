@@ -23,3 +23,47 @@ body{font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-
 .cover{height:150px;background:linear-gradient(120deg,#26153f,#68439a 60%,#b58a42);border-radius:12px 12px 0 0}.pm .av{width:82px;height:82px}.toast{background:#2b1945;border:1px solid #d8b76a;border-radius:12px;padding:11px 18px}
 @media(max-width:1000px){.layout{grid-template-columns:210px minmax(0,1fr)}.right{grid-column:1/-1;grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.topi{width:100%;min-height:60px;padding:7px 12px}.brand{font-size:22px}.brand img{width:36px;height:36px}.page{width:100%;padding:10px 10px 40px}.nav{width:calc(100% - 20px);overflow:auto;flex-wrap:nowrap}.nav button{padding:10px 13px}.layout{grid-template-columns:1fr;gap:12px;margin-top:12px}.left,.right{display:grid;grid-template-columns:1fr}.card{border-radius:14px}.right{grid-column:auto}.gb{gap:10px}}
+
+/* Refinamento funcional do painel */
+.nav button{font-size:13px;font-weight:700}
+.nav button:focus-visible,.primary:focus-visible,.secondary:focus-visible,.menu button:focus-visible{outline:3px solid #d8b76a;outline-offset:2px}
+.left .card:first-child{background:linear-gradient(155deg,#fff,#faf6fd)}
+.menu button{display:flex;align-items:center;gap:9px;min-height:42px}
+.menu button::first-letter{font-size:16px}
+.invite p{color:#756b78;line-height:1.6}
+.member,.person{min-width:0}
+.member span,.person b{overflow-wrap:anywhere}
+.composer .title{align-items:center}
+.composer textarea{display:block;width:100%;min-height:112px}
+.post{overflow:hidden}
+.body{overflow-wrap:anywhere}
+#gs{max-width:100%;min-width:0}
+button,select,input,textarea{touch-action:manipulation}
+@media(min-width:1001px){
+ .layout{grid-template-columns:250px minmax(360px,1fr) 280px}
+ .left,.right{position:sticky;top:16px}
+}
+@media(max-width:1000px){
+ .layout{grid-template-columns:220px minmax(0,1fr)}
+ .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .topi{gap:10px}
+ .layout{display:flex;flex-direction:column}
+ .col{width:100%}
+ .left{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .left>.card:last-child{grid-column:1/-1}
+ .right{display:grid;grid-template-columns:minmax(0,1fr)}
+ .pf .av{margin-top:12px}
+ .nav{scrollbar-width:thin}
+ .nav button{flex:0 0 auto}
+ .page h1{font-size:22px}
+}
+@media(max-width:420px){
+ .left{grid-template-columns:1fr}
+ .left>.card:last-child{grid-column:auto}
+ .card{padding:14px}
+ .composer{padding:14px}
+ .gb strong{font-size:17px}
+ .primary{min-height:42px}
+}
