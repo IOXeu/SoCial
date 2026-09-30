@@ -1,87 +1,25 @@
-const $=s=>document.querySelector(s),app=$('#app');
+const $=s=>document.querySelector(s),app=$('#app'),TOKEN='sb_token',PREF='sb_prefs';
+const st={me:null,groups:[],group:null,tab:'inicio',theme:0,model:0};
+const themes=[['Roxo Imperial','#241632','#34204b','#ff4fa3','#ffd166'],['Noite Rosa','#17121f','#302038','#ff4f9f','#f7c65c'],['Ameixa Dourada','#281527','#40203d','#f08ad1','#f3c969'],['Roxo Azul','#171a30','#27284d','#9d7cff','#ffd166'],['Violeta','#21182d','#382548','#d982ff','#f5c76b'],['Retrô','#f5edf8','#fff','#8e44ad','#d39b2a']];
+const models=['Clássico','Perfil','Mural','Comunidades','Compacto','Livre'];
+try{Object.assign(st,JSON.parse(localStorage.getItem(PREF)||'{}'))}catch{}
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
-const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-const b64u=b=>b64(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-const unb64u=s=>unb64(s.replace(/-/g,'+').replace(/_/g,'/'));
-const keys={};
-const K=async k=>keys[k]||(keys[k]=await crypto.subtle.importKey('raw',unb64u(k),'AES-GCM',false,['encrypt','decrypt']));
-async function enc(t,k){const iv=crypto.getRandomValues(new Uint8Array(12));const c=await crypto.subtle.encrypt({name:'AES-GCM',iv},await K(k),new TextEncoder().encode(t));const o=new Uint8Array(12+c.byteLength);o.set(iv);o.set(new Uint8Array(c),12);return b64(o)}
-async function dec(s,k){try{const o=unb64(s);return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:o.slice(0,12)},await K(k),o.slice(12)))}catch{return '…'}}
-
-let S=JSON.parse(localStorage.getItem('sb')||'{"s":[],"cur":0}'),cur,data,tab='mural',fr=null,raw='',timer;
-const save=()=>localStorage.setItem('sb',JSON.stringify(S));
-let tt;const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,3500)};
-async function api(path,body,s,method){
-  const r=await fetch('/api/'+path,{method:method||(body?'POST':'GET'),headers:{'Content-Type':'application/json',...(s?{'X-Token':s.mid+'.'+s.token}:{})},body:body?JSON.stringify(body):undefined});
-  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.erro||'Erro '+r.status);return j}
-async function run(e,fn){e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{await fn()}catch(x){toast(x.message)}b.disabled=false}
-const shell=h=>{clearInterval(timer);app.innerHTML=`<header><b class=logo><img src=logo-icone.png alt="">SoCial<i>Br</i></b></header><main>${h}</main>`};
-
-function welcome(){
-  shell(`<img class=hero src=logo-grande.png alt=SoCialBr><form id=f class=card><h2>Crie o seu grupo de amigos</h2><p>Só entra quem receber o seu link. Tudo é criptografado no seu aparelho.</p><label>Seu nome<input id=n maxlength=40 required></label><label>Nome do grupo<input id=g maxlength=40 required placeholder="Ex.: Galera da escola"></label><button>Criar grupo</button></form>`);
-  $('#f').onsubmit=e=>run(e,async()=>{const key=b64u(crypto.getRandomValues(new Uint8Array(32))),g=$('#g').value.trim(),n=$('#n').value.trim();
-    const {gid}=await api('criar',{nome:await enc(g,key)});await join(gid,key,n,g)});
-}
-function invite(h){
-  shell(`<img class=hero src=logo-grande.png alt=SoCialBr><form id=f class=card><h2>Você foi convidado!</h2><p>Escolha o nome que seus amigos vão ver.</p><label>Seu nome<input id=n maxlength=40 required></label><button>Entrar no grupo</button></form>`);
-  $('#f').onsubmit=e=>run(e,()=>join(h.g,h.k,$('#n').value.trim()));
-}
-async function join(gid,key,n,gname){
-  const r=await api('entrar',{gid,nome:await enc(n,key),sobre:await enc('',key)});
-  S.s=S.s.filter(x=>x.gid!=gid).concat({gid,key,gname:gname||'Grupo',...r});S.cur=S.s.length-1;save();
-  history.replaceState(null,'',location.pathname);start();
-}
-function start(){cur=S.s[S.cur];tab='mural';edit=false;raw='';data=null;clearInterval(timer);refresh();timer=setInterval(refresh,5000)}
-
-async function refresh(){
-  const me=cur;
-  try{
-    const d=await api('dados?gid='+me.gid,null,me),r=JSON.stringify(d);
-    if(me!==cur||(r==raw&&$('#main')))return;raw=r;const k=me.key;me.gname=await dec(d.grupo,k);save();
-    data={m:await Promise.all(d.membros.map(async x=>({id:x.id,nome:await dec(x.nome,k),sobre:await dec(x.sobre,k),foto:await fotoOk(x.foto,k)}))),
-      r:await Promise.all(d.recados.map(async x=>({...x,texto:await dec(x.texto,k)})))};
-    render(true);
-  }catch(e){if(!data)toast(e.message)}
-}
-let edit=false;
-const COR=['#ffd6e8;#a81e5d','#d6e9ff;#1a4da6','#dcfce7;#14532d','#fef9c3;#854d0e','#e0e7ff;#3730a3'];
-const fotoOk=async(t,k)=>{if(!t)return'';const f=await dec(t,k);return/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(f)?f:''};
-function av(m,z){const n=m.nome||'?',i=n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(),c=COR[[...n].reduce((q,h)=>q+h.charCodeAt(0),0)%5].split(';');
-  return m.foto?`<img class=av src="${m.foto}" style="width:${z}px;height:${z}px" alt="">`:`<span class=av style="width:${z}px;height:${z}px;background:${c[0]};color:${c[1]};font-size:${z/2.8}px">${esc(i)}</span>`}
-const small=f=>new Promise((ok,no)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const s=Math.min(i.width,i.height);c.getContext('2d').drawImage(i,(i.width-s)/2,(i.height-s)/2,s,s,0,0,128,128);ok(c.toDataURL('image/jpeg',.7))};i.onerror=no;i.src=URL.createObjectURL(f)});
-function render(keep){
-  const v=keep?$('#tx')?.value||'':'',by=id=>data.m.find(x=>x.id==id)||{nome:'Alguém'};
-  const me=data.m.find(x=>x.id==cur.mid)||{nome:'',sobre:'',foto:''},a=data.m.find(x=>x.id==fr);
-  const list=id=>data.r.filter(x=>x.para==id).map(x=>{const u=by(x.de);return `<li class=rec>${av(u,38)}<div><b>${esc(u.nome)}</b> <small>${new Date(x.t).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</small><p>${esc(x.texto)}</p></div></li>`}).join('')||'<li class=vazio>Nenhum recado ainda. Seja o primeiro!</li>';
-  const box=ph=>`<form id=f class=card><textarea id=tx maxlength=400 required placeholder="${esc(ph)}"></textarea><button>Publicar recado</button></form>`;
-  const left=edit?`<form id=p class="card pfb"><label>Foto de perfil<input type=file id=ph accept="image/*"></label><label>Seu nome<input id=pn maxlength=40 required value="${esc(me.nome)}"></label><label>Sobre mim<textarea id=ps maxlength=300>${esc(me.sobre)}</textarea></label><button>Salvar perfil</button></form>`
-    :`<div class="card pf"><div class=ban></div><div class=pfb>${av(me,72)}<h2>${esc(me.nome)}</h2><p>${esc(me.sobre)||'<span class=vazio>Conte algo sobre você.</span>'}</p><button class="btn alt" id=ed>Editar perfil e foto</button></div></div>`;
-  const mid=tab=='amigo'&&a?`<button class=link data-t=amigos>‹ Voltar aos amigos</button><div class="card pfb">${av(a,64)}<h2>${esc(a.nome)}</h2><p>${esc(a.sobre)||'<span class=vazio>Sem descrição ainda.</span>'}</p></div>${box('Deixe um recado para '+a.nome)}<ul class=card>${list(a.id)}</ul>`:box('Escreva para o grupo todo')+`<ul class=card>${list('')}</ul>`;
-  const right=`<button id=inv class="btn alt">Convidar amigo da agenda</button><div class="card pfb"><h3>Amigos (${data.m.length})</h3><div class=grid>${data.m.map(x=>`<button class=fr data-f="${x.id}">${av(x,64)}<small>${esc(x.nome)}</small></button>`).join('')}</div></div>`;
-  app.innerHTML=`<header><b class=logo><img src=logo-icone.png alt="">SoCial<i>Br</i></b><span class=hr><select id=sel aria-label="Meus grupos">${S.s.map((x,i)=>`<option value=${i} ${i==S.cur?'selected':''}>${esc(x.gname)}</option>`).join('')}<option value=n>+ Criar outro grupo</option></select>${av(me,36)}</span></header>
-<nav>${[['mural','Mural'],['amigos','Amigos'],['eu','Meu perfil']].map(([t,l])=>`<button data-t=${t} class="${tab==t||(tab=='amigo'&&t=='amigos')?'on':''}">${l}</button>`).join('')}</nav>
-<main id=main data-tab=${tab=='amigo'?'mural':tab}><div class="col cp">${left}</div><div class="col cm">${mid}</div><div class="col ca">${right}</div></main>`;
-  if(v&&$('#tx'))$('#tx').value=v;
-  $('#sel').onchange=e=>{if(e.target.value=='n')welcome();else{S.cur=+e.target.value;save();start()}};
-  $('#inv').onclick=convidar;
-  if($('#ed'))$('#ed').onclick=()=>{edit=true;tab='eu';render()};
-  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
-  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{tab='amigo';fr=b.dataset.f;render()});
-  if($('#f'))$('#f').onsubmit=e=>run(e,async()=>{await api('recado',{gid:cur.gid,para:tab=='amigo'?fr:'',texto:await enc($('#tx').value.trim(),cur.key)},cur);$('#tx').value='';raw='';await refresh();toast('Recado publicado!')});
-  if($('#p'))$('#p').onsubmit=e=>run(e,async()=>{let foto=me.foto||'';const f=$('#ph').files[0];if(f)foto=await small(f);
-    await api('perfil',{gid:cur.gid,nome:await enc($('#pn').value.trim(),cur.key),sobre:await enc($('#ps').value.trim(),cur.key),foto:await enc(foto,cur.key)},cur,'PUT');edit=false;raw='';await refresh();toast('Perfil salvo!')});
-}
-async function convidar(){
-  const msg=`Entre no meu grupo "${cur.gname}" no SoCialBr: ${location.origin}/#g=${cur.gid}&k=${cur.key}`;
-  try{
-    if('contacts' in navigator&&navigator.contacts.select){
-      const c=await navigator.contacts.select(['name','tel'],{multiple:false}),t=(c[0]?.tel?.[0]||'').replace(/\D/g,'');
-      if(t)return void window.open(`https://wa.me/${t.length<=11?'55'+t:t}?text=${encodeURIComponent(msg)}`,'_blank');
-    }
-    if(navigator.share)return await navigator.share({text:msg});
-    await navigator.clipboard.writeText(msg);toast('Link copiado. Cole no WhatsApp.');
-  }catch(e){if(e.name!='AbortError')toast('Não deu para abrir. Tente de novo.')}
-}
-const h=(p=>({g:p.get('g'),k:p.get('k')}))(new URLSearchParams(location.hash.slice(1))),ex=S.s.findIndex(x=>x.gid==h.g);
-if(h.g&&h.k&&ex<0)invite(h);else{if(ex>=0){S.cur=ex;history.replaceState(null,'',location.pathname)}S.s[S.cur]?start():welcome()}
+const save=()=>localStorage.setItem(PREF,JSON.stringify({theme:st.theme,model:st.model}));
+function api(p,b,m){return fetch('/api/'+p,{method:m||(b?'POST':'GET'),headers:{'content-type':'application/json',...(localStorage[TOKEN]?{authorization:'Bearer '+localStorage[TOKEN]}:{})},body:b?JSON.stringify(b):undefined}).then(async r=>{let d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.erro||('HTTP '+r.status));return d})}
+function av(n,c){let i=String(n||'?').split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase();return '<span class="avatar '+(c||'')+'">'+esc(i)+'</span>'}
+function theme(){let t=themes[st.theme];document.documentElement.style.setProperty('--bg',t[1]);document.documentElement.style.setProperty('--card',t[2]);document.documentElement.style.setProperty('--pink',t[3]);document.documentElement.style.setProperty('--gold',t[4]);}
+function toast(x){let t=$('#toast');if(!t){t=document.createElement('div');t.id='toast';document.body.append(t)}t.textContent=x;t.hidden=false;setTimeout(()=>t.hidden=true,4000)}
+function shell(x){theme();app.innerHTML='<header class="top"><div class="brand"><img src="logo-icone.png"><span>SoCial<i>Br</i></span></div><div class="top-user">'+(st.me?av(st.me.nome):'')+'</div></header>'+x+'<div id="toast" hidden></div>'}
+function login(){shell('<main class="landing"><section class="hero-card"><img src="logo-grande.png" class="hero-logo"><span class="eyebrow">SUA REDE. SEU ESPAÇO.</span><h1>O seu ambiente social, do seu jeito.</h1><p>Um painel inspirado nas redes clássicas, com espaço para você montar sua própria experiência.</p><form id="login"><input id="nome" maxlength="40" required placeholder="Como você quer ser chamado?"><button class="primary">Entrar no SoCialBr</button></form><small>Sem senha. Este aparelho guarda seu acesso.</small></section></main>');$('#login').onsubmit=async e=>{e.preventDefault();try{let r=await api('registrar',{nome:$('#nome').value.trim()});localStorage[TOKEN]=r.token;await boot()}catch(x){toast(x.message)}}}
+async function boot(){try{st.me=await api('eu');st.groups=await api('grupos');let q=new URLSearchParams(location.search).get('convite');if(q){let r=await api('convites/aceitar',{token:q});history.replaceState(null,'',location.pathname);st.groups=await api('grupos');return loadGroup(r.group_id)}if(!st.groups.length){render();return}await loadGroup(st.groups[0].id)}catch(x){console.error('SoCialBr/D1:',x);shell('<main class="landing"><section class="hero-card error-card"><span class="eyebrow">ERRO DE CONEXÃO</span><h1>O SoCialBr não conseguiu acessar o banco.</h1><p class="error-detail">'+esc(x.message||'Erro desconhecido')+'</p><p>O erro acima é o retorno real da API. Nenhuma tabela ou cron foi alterado.</p><button class="primary" onclick="location.reload()">Tentar novamente</button><button class="ghost" onclick="localStorage.removeItem(TOKEN);location.reload()">Trocar acesso</button></section></main>')}}
+async function loadGroup(id){try{st.group=await api('grupos/'+id+'/posts');render()}catch(x){toast(x.message)}}
+function nav(){return '<nav class="nav">'+[['inicio','Início'],['perfil','Meu perfil'],['amigos','Amigos'],['comunidades','Comunidades'],['config','Personalizar']].map(x=>'<button class="'+(st.tab==x[0]?'active':'')+'" data-tab="'+x[0]+'">'+x[1]+'</button>').join('')+'</nav>'}
+function render(){if(!st.me)return login();let x=st.tab==='config'?settings():st.tab==='perfil'?profile():st.tab==='amigos'?friends():st.tab==='comunidades'?communities():home();shell(nav()+'<main class="layout">'+x+'</main>');document.querySelectorAll('[data-tab]').forEach(x=>x.onclick=()=>{st.tab=x.dataset.tab;render()});let p=$('#post');if(p)p.onsubmit=async e=>{e.preventDefault();try{await api('grupos/'+st.group.grupo.id+'/posts',{texto:$('#texto').value.trim()});await loadGroup(st.group.grupo.id);toast('Publicado.')}catch(x){toast(x.message)}};let g=$('#groups');if(g)g.onchange=()=>loadGroup(g.value);document.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{st.theme=+b.dataset.theme;save();render()});document.querySelectorAll('[data-model]').forEach(b=>b.onclick=()=>{st.model=+b.dataset.model;save();render()});let ng=$('#newgroup');if(ng)ng.onsubmit=async e=>{e.preventDefault();try{let r=await api('grupos',{nome:$('#gname').value.trim()});st.groups=await api('grupos');await loadGroup(r.id)}catch(x){toast(x.message)}};let iv=$('#invite');if(iv)iv.onclick=invite}
+function groupbar(){return '<div class="groupbar"><div><small>AMBIENTE ATUAL</small><strong>'+esc(st.group.grupo.nome)+'</strong></div><select id="groups">'+st.groups.map(g=>'<option value="'+g.id+'" '+(g.id===st.group.grupo.id?'selected':'')+'>'+esc(g.nome)+'</option>').join('')+'</select></div>'}
+function home(){if(!st.group)return '<section class="welcome-panel"><span class="eyebrow">PRIMEIRO PASSO</span><h1>Crie seu primeiro ambiente.</h1><p>Comece com um grupo e depois personalize o painel.</p><form id="newgroup" class="inline-form"><input id="gname" required maxlength="50" placeholder="Nome do grupo"><button class="primary">Criar grupo</button></form></section>';let d=st.group,ms=d.membros||[],ps=d.posts||[];return groupbar()+'<section class="columns"><aside class="side"><div class="card profile-mini">'+av(st.me.nome,'large')+'<h2>'+esc(st.me.nome)+'</h2><p>Seu espaço no SoCialBr</p><button class="ghost" data-tab="perfil">Ver perfil</button></div><div class="card menu-card"><b>Atalhos</b><button data-tab="amigos">Amigos <span>'+ms.length+'</span></button><button data-tab="comunidades">Comunidades</button><button data-tab="config">Personalizar</button></div></aside><section class="feed"><div class="welcome-strip"><div><span>RECADO DO AMBIENTE</span><h2>O que está acontecendo?</h2></div><b class="spark">✦</b></div><form id="post" class="card composer"><textarea id="texto" maxlength="2000" placeholder="Escreva um recado para o grupo..."></textarea><div><small>Seu painel, suas regras.</small><button class="primary">Publicar</button></div></form>'+(ps.length?ps.map(p=>'<article class="card post"><div class="post-head">'+av(p.nome)+'<div><b>'+esc(p.nome)+'</b><small>'+new Date(p.criado_em).toLocaleString('pt-BR')+'</small></div></div><p>'+esc(p.texto)+'</p></article>').join(''):'<div class="empty card"><strong>O mural está esperando.</strong><span>Seja o primeiro a deixar um recado.</span></div>')+'</section><aside class="side"><div class="card"><div class="card-title"><b>Amigos</b><span>'+ms.length+'</span></div>'+ms.slice(0,6).map(m=>'<div class="member">'+av(m.nome)+'<span>'+esc(m.nome)+'</span></div>').join('')+'<button class="ghost full" data-tab="amigos">Ver todos</button></div><div class="card invite"><b>Traga seus amigos</b><p>Crie um convite individual para este ambiente.</p><button id="invite" class="primary full">Gerar convite</button></div></aside></section>'}
+function profile(){return '<section class="page"><div class="profile-cover"><div class="cover-art"></div><div class="profile-main">'+av(st.me.nome,'xl')+'<div><span class="eyebrow">MEU PERFIL</span><h1>'+esc(st.me.nome)+'</h1><p>Seu perfil, sua identidade e suas escolhas.</p></div></div></div><div class="profile-grid"><div class="card"><h2>Sobre você</h2><p>Este espaço está pronto para informações, fotos e atividade.</p></div><div class="card"><h2>Minha atividade</h2><p>Recados, amizades e comunidades aparecerão aqui.</p></div></div></section>'}
+function friends(){let m=st.group?.membros||[];return '<section class="page"><div class="page-head"><div><span class="eyebrow">REDE</span><h1>Amigos</h1><p>As pessoas deste ambiente.</p></div></div><div class="people-grid">'+(m.map(x=>'<article class="card person">'+av(x.nome,'large')+'<h3>'+esc(x.nome)+'</h3><small>Membro do ambiente</small></article>').join('')||'<div class="card empty">Nenhum membro ainda.</div>')+'</div></section>'}
+function communities(){return '<section class="page"><div class="page-head"><div><span class="eyebrow">COMUNIDADES</span><h1>Comunidades</h1><p>Um espaço para interesses, grupos e assuntos.</p></div></div><div class="feature-grid"><article class="card feature"><b>✦</b><h2>Em destaque</h2><p>O módulo de comunidades está pronto para crescer.</p></article><article class="card feature"><b>◈</b><h2>Meus interesses</h2><p>Organize seus espaços sem transformar a rede em um sistema pesado.</p></article></div></section>'}
+function settings(){return '<section class="page"><div class="page-head"><div><span class="eyebrow">PERSONALIZAÇÃO</span><h1>Monte seu SoCialBr</h1><p>Os modelos são pontos de partida. A organização pode evoluir.</p></div></div><div class="card chooser"><h2>Modelos de painel</h2><div class="choice-grid">'+models.map((x,i)=>'<button data-model="'+i+'" class="'+(st.model===i?'selected':'')+'"><span>0'+(i+1)+'</span><b>'+x+'</b><small>'+['Referência clássica','Foco no perfil','Mural em primeiro lugar','Foco em grupos','Mais conteúdo','Monte livremente'][i]+'</small></button>').join('')+'</div></div><div class="card chooser"><h2>Temas</h2><div class="theme-grid">'+themes.map((x,i)=>'<button data-theme="'+i+'" class="'+(st.theme===i?'selected':'')+'"><i style="background:'+x[3]+'"></i><i style="background:'+x[4]+'"></i><b>'+x[0]+'</b></button>').join('')+'</div></div></section>'}
+async function invite(){try{let r=await api('grupos/'+st.group.grupo.id+'/convites',{});let u=location.origin+'/?convite='+r.token;await navigator.clipboard?.writeText(u);toast('Convite copiado. Válido para uma pessoa.')}catch(x){toast(x.message)}}
+boot();
