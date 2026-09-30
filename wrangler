@@ -8,4 +8,4 @@ crons = ["0 6 * * *"]
 [[d1_databases]]
 binding = "DB"
 database_name = "socialbr"
-database_id = "COLE-AQUI-O-ID-DO-BANCO"
+database_id = "91c71bb9-46e4-4052-b7e5-7572ec26d857"
