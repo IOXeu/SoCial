@@ -1,0 +1,69 @@
+:root{--purple:#39205f;--purple-dark:#21143d;--purple-mid:#65429a;--pink:#b58a42;--pink-dark:#896329;--gold:#d8b76a;--cream:#fffefa;--lav:#f3eff8;--line:#e1d9e9;--text:#292336;--muted:#827b8d}
+body{font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(ellipse at 50% 0,#fff 0,#f4f0f8 58%,#eee8f4 100%);color:var(--text)}
+.top{background:linear-gradient(110deg,#26153f,#432365 65%,#55327b);border-bottom:3px solid #d8b76a;box-shadow:0 5px 22px #21143d22}
+.topi{width:min(1280px,calc(100% - 40px));min-height:72px;padding:10px 4px;gap:22px}.brand{font-size:27px;letter-spacing:-1.2px}.brand img{width:44px;height:44px}
+.search input{height:40px;border-radius:12px;background:#ffffff18;color:#fff;border:1px solid #ffffff35;padding:0 16px}.search input::placeholder{color:#e5d9ef}
+.av{border-radius:50%;background:linear-gradient(145deg,#b895d6,#6d4597);border:2px solid #fff;box-shadow:0 2px 8px #25113a24}
+.page{width:min(1280px,calc(100% - 40px));padding:18px 0 60px}
+.nav{width:min(1280px,calc(100% - 40px));margin:auto;background:#fff;border:1px solid #e8e0ed;border-radius:14px;padding:5px;box-shadow:0 4px 18px #35204c0a}
+.nav button{border:0;border-radius:10px;padding:11px 17px;color:#67567a;transition:.18s}.nav button:first-child{border:0}.nav button.active,.nav button:hover{background:#f1eaf8;color:#4c2672;text-decoration:none}
+.layout{grid-template-columns:245px minmax(0,1fr) 275px;gap:18px;margin-top:18px}.col{gap:16px}
+.card{border:1px solid #e9e2ed;border-radius:16px;padding:17px;box-shadow:0 5px 22px #35204c0a;background:#fff}
+.pf{padding:0 0 17px}.pf .av{width:88px;height:88px;border-radius:50%;font-size:25px;margin:18px auto 0;border:4px solid #fff;box-shadow:0 3px 14px #25113a20}.pf h2{font-size:19px;margin:12px 18px 2px;color:#39205f}.pf p{margin:0 18px}
+.menu{padding:8px}.menu button{border:0;border-radius:10px;padding:11px 12px;color:#5c5069;font-weight:600}.menu button:hover{background:#f5f0f8}
+.title{border-bottom:1px solid #eee8f1;padding-bottom:10px;margin-bottom:12px}.title strong{font-size:15px;color:#39205f}
+.gb{border:1px solid #e7ddec;border-left:4px solid #b58a42;border-radius:13px;background:linear-gradient(110deg,#fff,#faf7fc);padding:13px 16px}.gb strong{font-size:19px;color:#39205f}.gb select{border:1px solid #e2d8e8;border-radius:9px;padding:8px;background:#fff}
+.composer{padding:17px}.composer textarea{min-height:100px;border:1px solid #e4dce9;border-radius:12px;padding:13px;font:inherit;resize:vertical}.composer textarea:focus{outline:2px solid #b99bd1;border-color:transparent}
+.primary{background:linear-gradient(135deg,#67428d,#432365);border:0;border-radius:10px;padding:10px 18px;box-shadow:0 4px 10px #43236524}.primary:hover{background:linear-gradient(135deg,#76539b,#513076)}
+.secondary{border:1px solid #dfd4e7;border-radius:9px;padding:8px 12px;background:#faf7fc}
+.post{padding:18px}.ph{border:0;padding-bottom:0;gap:11px}.ph .av{width:42px;height:42px}.ph b{color:#39205f;font-size:14px}.ph small{font-size:12px}.body{font-size:14px;line-height:1.7;margin:15px 2px 4px}
+.member{padding:9px 0;border-color:#f0ebf2}.member .av{width:34px;height:34px}.invite{background:linear-gradient(150deg,#fffaf0,#fff);border:1px solid #eee1c8;border-top:3px solid #b58a42}.invite h3{color:#76572c;font-size:16px}
+.person{padding:10px 2px;border-color:#f0ebf2}.person .av{width:38px;height:38px}
+.hero-card{border:1px solid #e7ddec;border-top:5px solid #b58a42;border-radius:20px;box-shadow:0 18px 55px #35204c16;padding:34px}.hero-card h1,.page h1{color:#39205f}.form input{border:1px solid #e0d6e7;border-radius:10px;padding:11px}
+.cover{height:150px;background:linear-gradient(120deg,#26153f,#68439a 60%,#b58a42);border-radius:12px 12px 0 0}.pm .av{width:82px;height:82px}.toast{background:#2b1945;border:1px solid #d8b76a;border-radius:12px;padding:11px 18px}
+@media(max-width:1000px){.layout{grid-template-columns:210px minmax(0,1fr)}.right{grid-column:1/-1;grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.topi{width:100%;min-height:60px;padding:7px 12px}.brand{font-size:22px}.brand img{width:36px;height:36px}.page{width:100%;padding:10px 10px 40px}.nav{width:calc(100% - 20px);overflow:auto;flex-wrap:nowrap}.nav button{padding:10px 13px}.layout{grid-template-columns:1fr;gap:12px;margin-top:12px}.left,.right{display:grid;grid-template-columns:1fr}.card{border-radius:14px}.right{grid-column:auto}.gb{gap:10px}}
+
+/* Refinamento funcional do painel */
+.nav button{font-size:13px;font-weight:700}
+.nav button:focus-visible,.primary:focus-visible,.secondary:focus-visible,.menu button:focus-visible{outline:3px solid #d8b76a;outline-offset:2px}
+.left .card:first-child{background:linear-gradient(155deg,#fff,#faf6fd)}
+.menu button{display:flex;align-items:center;gap:9px;min-height:42px}
+.menu button::first-letter{font-size:16px}
+.invite p{color:#756b78;line-height:1.6}
+.member,.person{min-width:0}
+.member span,.person b{overflow-wrap:anywhere}
+.composer .title{align-items:center}
+.composer textarea{display:block;width:100%;min-height:112px}
+.post{overflow:hidden}
+.body{overflow-wrap:anywhere}
+#gs{max-width:100%;min-width:0}
+button,select,input,textarea{touch-action:manipulation}
+@media(min-width:1001px){
+ .layout{grid-template-columns:250px minmax(360px,1fr) 280px}
+ .left,.right{position:sticky;top:16px}
+}
+@media(max-width:1000px){
+ .layout{grid-template-columns:220px minmax(0,1fr)}
+ .right{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .topi{gap:10px}
+ .layout{display:flex;flex-direction:column}
+ .col{width:100%}
+ .left{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .left>.card:last-child{grid-column:1/-1}
+ .right{display:grid;grid-template-columns:minmax(0,1fr)}
+ .pf .av{margin-top:12px}
+ .nav{scrollbar-width:thin}
+ .nav button{flex:0 0 auto}
+ .page h1{font-size:22px}
+}
+@media(max-width:420px){
+ .left{grid-template-columns:1fr}
+ .left>.card:last-child{grid-column:auto}
+ .card{padding:14px}
+ .composer{padding:14px}
+ .gb strong{font-size:17px}
+ .primary{min-height:42px}
+}
