@@ -3,7 +3,11 @@ const T = 'sb_token';
 const G = 'sb_groups';
 const AV = 'sb_avatar';
 const CV = 'sb_cover';
+const AP = 'sb_appearance';
 let me = null, groups = [], cur = null, data = null, tab = 'mural';
+let appearance = JSON.parse(localStorage.getItem(AP) || '{"theme":0,"model":"classico"}');
+const THEMES = ['Roxo Clássico','Rosa Imperial','Azul Noturno','Verde Jardim','Dourado Antigo','Vinho','Céu','Lavanda','Turquesa','Grafite','Cobre','Amanhecer'];
+const MODELS = {classico:'Clássico',compacto:'Compacto',largo:'Painel Largo'};
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
@@ -12,6 +16,12 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
 const av = n => '<span class="av">' +
   esc(String(n || '?').trim().split(/\s+/).map(x => x[0]).slice(0,2).join('').toUpperCase() || '?') +
   '</span>';
+
+function applyAppearance(){
+  document.body.dataset.theme = String(appearance.theme || 0);
+  document.body.dataset.model = appearance.model || 'classico';
+}
+function saveAppearance(){ localStorage.setItem(AP,JSON.stringify(appearance)); applyAppearance(); }
 
 function toast(x) {
   const t = $('#toast');
@@ -159,7 +169,8 @@ function login() {
     try {
       const r = await api('registrar',{nome:$('#n').value.trim()});
       localStorage[T] = r.token;
-      await start();
+      await applyAppearance();
+start();
     } catch (x) { toast(x.message); }
   };
 }
@@ -227,6 +238,7 @@ function nav() {
     '<button class="' + (tab==='amigos'?'active':'') + '" data-t="amigos">Amigos</button>' +
     '<button class="' + (tab==='grupo'?'active':'') + '" data-t="grupo">Comunidade</button>' +
     '<button class="' + (tab==='grupos'?'active':'') + '" data-t="grupos">Meus grupos</button>' +
+    '<button class="' + (tab==='aparencia'?'active':'') + '" data-t="aparencia">🎨 Aparência</button>' +
     '</nav>';
 }
 
@@ -296,6 +308,16 @@ function grupo() {
     '<p>Convites individuais com validade de 7 dias.</p></div>';
 }
 
+function aparencia() {
+  return '<h1>Aparência</h1>' +
+    '<div class="card appearance"><div class="title"><strong>Escolha seu modelo</strong><small>Você pode trocar quando quiser</small></div>' +
+    '<div class="appearance-grid">' + Object.entries(MODELS).map(([id,nome]) =>
+      '<button class="model-card ' + (appearance.model===id?'selected':'') + '" data-model="' + id + '"><span class="model-preview ' + id + '"></span><b>' + nome + '</b></button>'
+    ).join('') + '</div>' +
+    '<div class="title theme-title"><strong>Escolha sua capa de cores</strong><small>12 opções</small></div>' +
+    '<div class="theme-grid">' + THEMES.map((x,i) => '<button class="theme-card t' + i + ' ' + (Number(appearance.theme)===i?'selected':'') + '" data-theme="' + i + '"><span></span><b>' + x + '</b></button>').join('') + '</div></div>';
+}
+
 function groupsPage() {
   return '<h1>Meus grupos</h1><div class="card">' +
     groups.map(g => '<div class="member"><b>' + esc(g.nome) +
@@ -330,6 +352,7 @@ async function render() {
   else if (tab === 'amigos') body = amigos();
   else if (tab === 'grupo') body = grupo();
   else if (tab === 'grupos') body = groupsPage();
+  else if (tab === 'aparencia') body = aparencia();
   else body = await mural();
 
   shell(
@@ -364,6 +387,13 @@ async function render() {
 
   document.querySelectorAll('[data-open]').forEach(b => {
     b.onclick = () => load(b.dataset.open);
+  });
+
+  document.querySelectorAll('[data-model]').forEach(b => {
+    b.onclick = () => { appearance.model = b.dataset.model; saveAppearance(); render(); };
+  });
+  document.querySelectorAll('[data-theme]').forEach(b => {
+    b.onclick = () => { appearance.theme = Number(b.dataset.theme); saveAppearance(); render(); };
   });
 }
 
