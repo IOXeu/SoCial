@@ -1,6 +1,8 @@
 const app = document.querySelector('#app');
 const T = 'sb_token';
 const G = 'sb_groups';
+const AV = 'sb_avatar';
+const CV = 'sb_cover';
 let me = null, groups = [], cur = null, data = null, tab = 'mural';
 
 const $ = s => document.querySelector(s);
@@ -75,6 +77,56 @@ function save() {
   localStorage.setItem(G, JSON.stringify(groups));
 }
 
+function photo(type) {
+  return localStorage.getItem(type === 'avatar' ? AV : CV) || '';
+}
+
+function avatar(n) {
+  const src = photo('avatar');
+  return src ? '<img class="av av-photo" src="' + src + '" alt="Avatar">' : av(n);
+}
+
+function photoInput(type) {
+  return '<label class="photo-btn">' + (type === 'avatar' ? '📷 Foto do perfil' : '🖼️ Foto da capa') +
+    '<input type="file" accept="image/*" data-photo="' + type + '" hidden></label>';
+}
+
+function readPhoto(file, type) {
+  return new Promise((resolve,reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const max = type === 'avatar' ? 512 : 1400;
+        const scale = Math.min(1, max / Math.max(img.width,img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.width * scale));
+        c.height = Math.max(1, Math.round(img.height * scale));
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        resolve(c.toDataURL('image/jpeg',0.82));
+      };
+      img.onerror = reject;
+      img.src = r.result;
+    };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function bindPhotos() {
+  document.querySelectorAll('[data-photo]').forEach(input => {
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      try {
+        localStorage.setItem(input.dataset.photo === 'avatar' ? AV : CV, await readPhoto(file,input.dataset.photo));
+        await render();
+        toast('Foto atualizada');
+      } catch { toast('Não foi possível carregar a foto'); }
+    };
+  });
+}
+
 function loadGroups() {
   try { groups = JSON.parse(localStorage.getItem(G) || '[]'); }
   catch { groups = []; }
@@ -85,7 +137,7 @@ function shell(x) {
     '<header class="top"><div class="topi">' +
     '<div class="brand"><img src="logo-icone.png">SoCial<i>Br</i></div>' +
     '<div class="search"><input placeholder="Pesquisar no SoCialBr" disabled></div>' +
-    '<div class="tu">' + (me ? av(me.nome) : '') +
+    '<div class="tu">' + (me ? avatar(me.nome) : '') +
     '<span>' + esc(me?.nome || '') + '</span></div>' +
     '</div></header>' + x;
 }
@@ -179,7 +231,7 @@ function nav() {
 }
 
 function left() {
-  return '<div class="card pf">' + av(me.nome) +
+  return '<div class="card pf">' + avatar(me.nome) +
     '<h2>' + esc(me.nome) + '</h2><p>membro do SoCialBr</p></div>' +
     '<div class="card menu">' +
     '<button data-t="mural">🏠 Início</button>' +
@@ -224,9 +276,10 @@ async function mural() {
 }
 
 function perfil() {
-  return '<div class="card"><div class="cover"></div><div class="pm">' +
-    av(me.nome) + '<div><h1>' + esc(me.nome) +
-    '</h1><small>Seu perfil no SoCialBr</small></div></div></div>';
+  const cover = photo('cover');
+  return '<div class="card profile-card"><div class="cover" style="' + (cover ? 'background-image:url(\\'' + cover + '\\')' : '') + '">' +
+    photoInput('cover') + '</div><div class="pm">' + avatar(me.nome) +
+    '<div><h1>' + esc(me.nome) + '</h1><small>Seu perfil no SoCialBr</small></div>' + photoInput('avatar') + '</div></div>';
 }
 
 function amigos() {
@@ -307,6 +360,7 @@ async function render() {
   });
 
   $('#inv')?.addEventListener('click',invite);
+  bindPhotos();
 
   document.querySelectorAll('[data-open]').forEach(b => {
     b.onclick = () => load(b.dataset.open);
