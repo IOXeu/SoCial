@@ -289,7 +289,7 @@ async function mural() {
 
 function perfil() {
   const cover = photo('cover');
-  return '<div class="card profile-card"><div class="cover" style="' + (cover ? 'background-image:url(\\'' + cover + '\\')' : '') + '">' +
+  return '<div class="card profile-card"><div class="cover" style="' + (cover ? 'background-image:url(' + cover + ')' : '') + '">' +
     photoInput('cover') + '</div><div class="pm">' + avatar(me.nome) +
     '<div><h1>' + esc(me.nome) + '</h1><small>Seu perfil no SoCialBr</small></div>' + photoInput('avatar') + '</div></div>';
 }
