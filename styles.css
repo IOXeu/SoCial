@@ -173,3 +173,12 @@ button{cursor:pointer}
   .gb{align-items:flex-start;flex-direction:column}
   .gb select{width:100%}
 }
+
+.av-photo{object-fit:cover;display:inline-block;vertical-align:middle}
+.pf .av-photo{width:72px;height:72px}
+.ph .av-photo{width:32px;height:32px}
+.member .av-photo,.person .av-photo{width:28px;height:28px}
+.photo-btn{display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid #c7b6cf;color:var(--purple);padding:5px 8px;border-radius:2px;font-weight:bold;cursor:pointer;font-size:12px}
+.pm .photo-btn{margin-left:auto}
+.cover{position:relative;background-size:cover;background-position:center}
+.cover .photo-btn{position:absolute;right:8px;top:8px;background:#ffffffdd}
