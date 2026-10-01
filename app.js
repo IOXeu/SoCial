@@ -5,7 +5,8 @@ const AV = 'sb_avatar';
 const CV = 'sb_cover';
 const AP = 'sb_appearance';
 let me = null, groups = [], cur = null, data = null, tab = 'mural';
-let appearance = JSON.parse(localStorage.getItem(AP) || '{"theme":0,"model":"classico"}');
+let appearance = {theme:0,model:'classico'};
+try { appearance = {...appearance,...JSON.parse(localStorage.getItem(AP) || '{}')}; } catch { localStorage.removeItem(AP); }
 const THEMES = ['Roxo Clássico','Rosa Imperial','Azul Noturno','Verde Jardim','Dourado Antigo','Vinho','Céu','Lavanda','Turquesa','Grafite','Cobre','Amanhecer'];
 const MODELS = {classico:'Clássico',compacto:'Compacto',largo:'Painel Largo'};
 
@@ -169,8 +170,7 @@ function login() {
     try {
       const r = await api('registrar',{nome:$('#n').value.trim()});
       localStorage[T] = r.token;
-      await applyAppearance();
-start();
+      await start();
     } catch (x) { toast(x.message); }
   };
 }
