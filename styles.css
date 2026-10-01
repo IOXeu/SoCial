@@ -145,12 +145,13 @@ button{cursor:pointer}
 .form label{font-weight:bold;color:var(--purple)}
 .form input{width:100%;border:1px solid #c8b8cf;border-radius:2px;padding:8px}
 .page h1{font-size:21px;color:var(--purple);margin:4px 0}
-.cover{height:95px;background:linear-gradient(120deg,var(--purple-dark),var(--purple-mid),var(--pink));border-radius:2px 2px 0 0}
-.pm{display:flex;gap:12px;align-items:center;margin-top:-20px;padding:0 13px 18px}
-.pm .av{width:68px;height:68px;flex:none}
+.profile-card{overflow:visible}
+.cover{height:150px;background:linear-gradient(120deg,var(--purple-dark),var(--purple-mid),var(--pink));border-radius:2px 2px 0 0;position:relative;z-index:0}
+.pm{display:flex;position:relative;z-index:1;gap:12px;align-items:center;margin-top:-26px;padding:0 13px 18px}
+.pm .av{width:68px;height:68px;flex:none;position:relative;z-index:2;border-radius:50%;object-fit:cover}
 .pm h1{margin:8px 0 0;line-height:1.25}
 .pm>div{min-width:0}
-.pm .photo-btn{flex:none}
+.pm .photo-btn{flex:none;position:relative;z-index:2}
 .toast{
   position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
   background:var(--purple-dark);color:#fff;border:1px solid var(--gold);
@@ -161,6 +162,9 @@ button{cursor:pointer}
   .right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}
 }
 @media(max-width:650px){
+  .cover{height:125px}
+  .pm{margin-top:-22px;gap:10px;padding-left:10px;padding-right:10px}
+  .pm .av{width:60px;height:60px}
   .topi{width:100%;padding:6px 9px}
   .brand{font-size:21px}
   .brand img{width:34px;height:34px}
