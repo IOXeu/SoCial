@@ -120,12 +120,11 @@ async function start() {
     me = await api('eu');
     const gs = await api('grupos');
 
-    for (const x of gs) {
-      const old = groups.find(g => g.id === x.id);
-      if (!old) groups.push(x);
-      else Object.assign(old,x);
-    }
-    groups = groups.filter(g => gs.some(x => x.id === g.id));
+    const oldGroups = groups.filter(g => g && g.id);
+    groups = gs.map(x => {
+      const old = oldGroups.find(g => g.id === x.id);
+      return old ? {...x, key:old.key} : x;
+    }).filter(g => g && g.id);
     save();
 
     const u = new URL(location.href);
@@ -143,7 +142,9 @@ async function start() {
     }
 
     if (!groups.length) return createPage();
-    await load(groups[0].id);
+    const first = groups.find(g => g && g.id);
+    if (!first) { groups = []; save(); return createPage(); }
+    await load(first.id);
   } catch (x) {
     shell(
       '<main class="hero"><section class="hero-card">' +
@@ -155,6 +156,7 @@ async function start() {
 }
 
 async function load(id) {
+  if (!id) { groups = groups.filter(g => g && g.id); save(); return groups.length ? load(groups[0].id) : createPage(); }
   try {
     const g = groups.find(x => x.id === id) || {};
     const d = await api('grupos/' + id + '/posts');
